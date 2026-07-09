@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}My Tasks - Task Manager{% endblock %}
+{% block title %}My Tasks - TaskFlow{% endblock %}
 
 {% block content %}
-<h1 style="color: white; margin-bottom: 20px;">
-    <i class="fas fa-list"></i> My Tasks
+<h1 style="color: #4A4A4A; margin-bottom: 20px;">
+    <i class="fas fa-list" style="color: #D4A5FF;"></i> My Tasks
 </h1>
 
 <!-- Filter Bar -->
@@ -12,7 +12,7 @@
     <form method="GET" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
         <div style="flex: 1; min-width: 150px;">
             <label style="display: block; font-size: 0.8rem; opacity: 0.7;">Status</label>
-            <select name="status" style="width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.2);">
+            <select name="status" style="width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.6); color: #4A4A4A; border: 2px solid rgba(212,165,255,0.2);">
                 <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
                 <option value="Pending" {% if status == 'Pending' %}selected{% endif %}>Pending</option>
                 <option value="Completed" {% if status == 'Completed' %}selected{% endif %}>Completed</option>
@@ -20,7 +20,7 @@
         </div>
         <div style="flex: 1; min-width: 150px;">
             <label style="display: block; font-size: 0.8rem; opacity: 0.7;">Priority</label>
-            <select name="priority" style="width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.2);">
+            <select name="priority" style="width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.6); color: #4A4A4A; border: 2px solid rgba(212,165,255,0.2);">
                 <option value="all" {% if priority == 'all' %}selected{% endif %}>All</option>
                 <option value="High" {% if priority == 'High' %}selected{% endif %}>High</option>
                 <option value="Medium" {% if priority == 'Medium' %}selected{% endif %}>Medium</option>
@@ -30,13 +30,13 @@
         <div style="flex: 2; min-width: 200px;">
             <label style="display: block; font-size: 0.8rem; opacity: 0.7;">Search</label>
             <input type="text" name="search" value="{{ search }}" placeholder="Search tasks..." 
-                   style="width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.2);">
+                   style="width: 100%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.6); color: #4A4A4A; border: 2px solid rgba(212,165,255,0.2);">
         </div>
         <div style="display: flex; gap: 10px; align-items: flex-end;">
             <button type="submit" class="btn btn-primary" style="padding: 8px 20px;">
                 <i class="fas fa-filter"></i> Filter
             </button>
-            <a href="{{ url_for('tasks') }}" class="btn" style="padding: 8px 20px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.2); text-decoration: none;">
+            <a href="{{ url_for('tasks') }}" class="btn btn-outline" style="padding: 8px 20px; text-decoration: none;">
                 <i class="fas fa-redo"></i> Reset
             </a>
         </div>
@@ -47,36 +47,35 @@
 {% if tasks %}
     <div style="display: grid; gap: 15px;">
         {% for task in tasks %}
-            <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <div>
-                    <h3 style="margin-bottom: 5px;">
-                        {% if task.status == 'Completed' %}
-                            <span style="text-decoration: line-through; opacity: 0.6;">{{ task.title }}</span>
-                        {% else %}
-                            {{ task.title }}
-                        {% endif %}
-                    </h3>
+            <div class="task-card {% if task.status == 'Completed' %}completed{% endif %}">
+                <div class="task-content">
+                    <div class="task-title {% if task.status == 'Completed' %}completed-text{% endif %}">
+                        {{ task.title }}
+                    </div>
                     {% if task.description %}
-                        <p style="opacity: 0.7; font-size: 0.9rem;">{{ task.description }}</p>
+                        <div class="task-description">{{ task.description }}</div>
                     {% endif %}
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px;">
-                        <span style="background: {% if task.priority == 'High' %}#ff4757{% elif task.priority == 'Medium' %}#feca57{% else %}#2ed573{% endif %}; padding: 2px 12px; border-radius: 12px; color: white; font-size: 0.8rem;">
-                            {{ task.priority }}
+                    <div class="task-meta">
+                        <span class="badge 
+                            {% if task.priority == 'High' %}badge-high
+                            {% elif task.priority == 'Medium' %}badge-medium
+                            {% else %}badge-low{% endif %}">
+                            <i class="fas fa-flag"></i> {{ task.priority }}
                         </span>
-                        <span style="background: {% if task.status == 'Completed' %}#2ed573{% else %}#54a0ff{% endif %}; padding: 2px 12px; border-radius: 12px; color: white; font-size: 0.8rem;">
-                            {{ task.status }}
+                        <span class="badge {% if task.status == 'Completed' %}badge-status completed-status{% else %}badge-status{% endif %}">
+                            <i class="fas fa-circle"></i> {{ task.status }}
                         </span>
                         {% if task.due_date %}
-                            <span style="opacity: 0.6; font-size: 0.8rem;">
+                            <span style="opacity: 0.6; font-size: 0.8rem; color: #4A4A4A;">
                                 <i class="fas fa-calendar-alt"></i> Due: {{ task.due_date.strftime('%Y-%m-%d') }}
                             </span>
                         {% endif %}
-                        <span style="opacity: 0.5; font-size: 0.7rem;">
+                        <span style="opacity: 0.4; font-size: 0.7rem; color: #4A4A4A;">
                             Created: {{ task.created_at.strftime('%Y-%m-%d') }}
                         </span>
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div class="task-actions">
                     {% if task.status != 'Completed' %}
                         <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-success" style="padding: 6px 14px;">
                             <i class="fas fa-check"></i> Complete
@@ -94,9 +93,9 @@
     </div>
 {% else %}
     <div class="card" style="text-align: center; padding: 40px;">
-        <i class="fas fa-inbox" style="font-size: 3rem; opacity: 0.3; margin-bottom: 20px;"></i>
-        <h3>No tasks found</h3>
-        <p style="opacity: 0.7;">Create your first task now!</p>
+        <i class="fas fa-inbox" style="font-size: 3rem; opacity: 0.3; margin-bottom: 20px; color: #D4A5FF;"></i>
+        <h3 style="color: #4A4A4A;">No tasks found</h3>
+        <p style="opacity: 0.7; color: #4A4A4A;">Create your first task now!</p>
         <a href="{{ url_for('add_task') }}" class="btn btn-success" style="margin-top: 20px;">
             <i class="fas fa-plus"></i> Add Task
         </a>
