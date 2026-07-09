@@ -10,10 +10,14 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 
 # Database configuration
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///tasks.db')
-if database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+database_url = os.environ.get('DATABASE_URL')
+if not database_url:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
+else:
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
@@ -58,7 +62,8 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
 
-# Routes
+# ===== ROUTES =====
+
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -76,7 +81,6 @@ def register():
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
 
-        # Validation
         if not username or not email or not password:
             flash('All fields are required!', 'error')
             return render_template('register.html')
@@ -89,7 +93,6 @@ def register():
             flash('Password must be at least 6 characters!', 'error')
             return render_template('register.html')
 
-        # Check if user exists
         if User.query.filter_by(username=username).first():
             flash('Username already exists!', 'error')
             return render_template('register.html')
@@ -98,7 +101,6 @@ def register():
             flash('Email already registered!', 'error')
             return render_template('register.html')
 
-        # Create user
         user = User(username=username, email=email)
         user.set_password(password)
         db.session.add(user)
@@ -141,12 +143,10 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Get task statistics
     total_tasks = Task.query.filter_by(user_id=current_user.id).count()
     pending_tasks = Task.query.filter_by(user_id=current_user.id, status='Pending').count()
     completed_tasks = Task.query.filter_by(user_id=current_user.id, status='Completed').count()
     
-    # Get recent tasks (last 5)
     recent_tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.desc()).limit(5).all()
     
     return render_template('dashboard.html',
@@ -158,7 +158,6 @@ def dashboard():
 @app.route('/tasks')
 @login_required
 def tasks():
-    # Get filter parameters
     status = request.args.get('status', 'all')
     priority = request.args.get('priority', 'all')
     search = request.args.get('search', '')
@@ -220,7 +219,6 @@ def add_task():
 def edit_task(task_id):
     task = Task.query.get_or_404(task_id)
     
-    # Check if task belongs to current user
     if task.user_id != current_user.id:
         flash('You do not have permission to edit this task.', 'error')
         return redirect(url_for('tasks'))
