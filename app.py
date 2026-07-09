@@ -25,25 +25,19 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-login_manager.login_message = 'Please log in to access this page.'
 
 # ===== MODELS =====
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    tasks = db.relationship('Task', backref='user', lazy=True)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
 
 class Task(db.Model):
+    __tablename__ = 'tasks'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
@@ -51,8 +45,7 @@ class Task(db.Model):
     status = db.Column(db.String(20), default='Pending')
     due_date = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -102,7 +95,7 @@ def register():
             return render_template('register.html')
 
         user = User(username=username, email=email)
-        user.set_password(password)
+        user.password_hash = generate_password_hash(password)
         db.session.add(user)
         db.session.commit()
 
@@ -123,7 +116,7 @@ def login():
 
         user = User.query.filter_by(username=username).first()
 
-        if not user or not user.check_password(password):
+        if not user or not check_password_hash(user.password_hash, password):
             flash('Invalid username or password!', 'error')
             return render_template('login.html')
 
@@ -181,42 +174,36 @@ def tasks():
 @login_required
 def add_task():
     if request.method == 'POST':
-        try:
-            title = request.form.get('title')
-            description = request.form.get('description')
-            priority = request.form.get('priority', 'Medium')
-            due_date_str = request.form.get('due_date')
-            
-            if not title:
-                flash('Task title is required!', 'error')
-                return render_template('add_task.html')
-            
-            due_date = None
-            if due_date_str and due_date_str.strip():
-                try:
-                    due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
-                except ValueError:
-                    flash('Invalid date format!', 'error')
-                    return render_template('add_task.html')
-            
-            task = Task(
-                title=title,
-                description=description,
-                priority=priority,
-                due_date=due_date,
-                user_id=current_user.id
-            )
-            
-            db.session.add(task)
-            db.session.commit()
-            
-            flash('Task created successfully! ✅', 'success')
-            return redirect(url_for('tasks'))
-            
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error creating task', 'error')
+        title = request.form.get('title')
+        description = request.form.get('description')
+        priority = request.form.get('priority', 'Medium')
+        due_date_str = request.form.get('due_date')
+        
+        if not title:
+            flash('Task title is required!', 'error')
             return render_template('add_task.html')
+        
+        due_date = None
+        if due_date_str:
+            try:
+                due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
+            except:
+                flash('Invalid date format!', 'error')
+                return render_template('add_task.html')
+        
+        task = Task(
+            title=title,
+            description=description,
+            priority=priority,
+            due_date=due_date,
+            user_id=current_user.id
+        )
+        
+        db.session.add(task)
+        db.session.commit()
+        
+        flash('Task created successfully! ✅', 'success')
+        return redirect(url_for('tasks'))
     
     return render_template('add_task.html')
 
@@ -230,34 +217,33 @@ def edit_task(task_id):
         return redirect(url_for('tasks'))
     
     if request.method == 'POST':
-        try:
-            task.title = request.form.get('title')
-            task.description = request.form.get('description')
-            task.priority = request.form.get('priority')
-            task.status = request.form.get('status')
-            due_date_str = request.form.get('due_date')
-            
-            if not task.title:
-                flash('Task title is required!', 'error')
-                return render_template('edit_task.html', task=task)
-            
-            if due_date_str and due_date_str.strip():
-                try:
-                    task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
-                except ValueError:
-                    flash('Invalid date format!', 'error')
-                    return render_template('edit_task.html', task=task)
-            else:
-                task.due_date = None
-            
-            db.session.commit()
-            flash('Task updated successfully! ✅', 'success')
-            return redirect(url_for('tasks'))
-            
-        except Exception as e:
-            db.session.rollback()
-            flash('Error updating task', 'error')
+        title = request.form.get('title')
+        description = request.form.get('description')
+        priority = request.form.get('priority')
+        status = request.form.get('status')
+        due_date_str = request.form.get('due_date')
+        
+        if not title:
+            flash('Task title is required!', 'error')
             return render_template('edit_task.html', task=task)
+        
+        # Update task
+        task.title = title
+        task.description = description
+        task.priority = priority
+        task.status = status
+        
+        if due_date_str:
+            try:
+                task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
+            except:
+                task.due_date = None
+        else:
+            task.due_date = None
+        
+        db.session.commit()
+        flash('Task updated successfully! ✅', 'success')
+        return redirect(url_for('tasks'))
     
     return render_template('edit_task.html', task=task)
 
@@ -289,18 +275,6 @@ def complete_task(task_id):
     flash('Task marked as completed! 🎉', 'success')
     return redirect(url_for('tasks'))
 
-@app.route('/api/tasks')
-@login_required
-def api_tasks():
-    tasks = Task.query.filter_by(user_id=current_user.id).all()
-    return jsonify([{
-        'id': t.id,
-        'title': t.title,
-        'status': t.status,
-        'priority': t.priority,
-        'due_date': t.due_date.strftime('%Y-%m-%d') if t.due_date else None
-    } for t in tasks])
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port)
