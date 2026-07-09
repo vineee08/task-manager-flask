@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import secrets
 
@@ -27,7 +27,8 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 
-# User Model
+# ===== MODELS =====
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -42,7 +43,6 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-# Task Model
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -58,7 +58,7 @@ class Task(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Create tables
+# ===== CREATE TABLES =====
 with app.app_context():
     db.create_all()
 
@@ -173,9 +173,9 @@ def tasks():
     if search:
         query = query.filter(Task.title.contains(search) | Task.description.contains(search))
     
-    tasks = query.order_by(Task.created_at.desc()).all()
+    tasks_list = query.order_by(Task.created_at.desc()).all()
     
-    return render_template('tasks.html', tasks=tasks, status=status, priority=priority, search=search)
+    return render_template('tasks.html', tasks=tasks_list, status=status, priority=priority, search=search)
 
 @app.route('/add_task', methods=['GET', 'POST'])
 @login_required
@@ -209,7 +209,7 @@ def add_task():
         db.session.add(task)
         db.session.commit()
         
-        flash('Task created successfully!', 'success')
+        flash('Task created successfully! ✅', 'success')
         return redirect(url_for('tasks'))
     
     return render_template('add_task.html')
@@ -244,7 +244,7 @@ def edit_task(task_id):
             task.due_date = None
         
         db.session.commit()
-        flash('Task updated successfully!', 'success')
+        flash('Task updated successfully! ✅', 'success')
         return redirect(url_for('tasks'))
     
     return render_template('edit_task.html', task=task)
@@ -260,7 +260,7 @@ def delete_task(task_id):
     
     db.session.delete(task)
     db.session.commit()
-    flash('Task deleted successfully!', 'success')
+    flash('Task deleted successfully! 🗑️', 'success')
     return redirect(url_for('tasks'))
 
 @app.route('/complete_task/<int:task_id>')
