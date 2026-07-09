@@ -181,36 +181,42 @@ def tasks():
 @login_required
 def add_task():
     if request.method == 'POST':
-        title = request.form.get('title')
-        description = request.form.get('description')
-        priority = request.form.get('priority', 'Medium')
-        due_date_str = request.form.get('due_date')
-        
-        if not title:
-            flash('Task title is required!', 'error')
-            return render_template('add_task.html')
-        
-        due_date = None
-        if due_date_str:
-            try:
-                due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
-            except:
-                flash('Invalid date format!', 'error')
+        try:
+            title = request.form.get('title')
+            description = request.form.get('description')
+            priority = request.form.get('priority', 'Medium')
+            due_date_str = request.form.get('due_date')
+            
+            if not title:
+                flash('Task title is required!', 'error')
                 return render_template('add_task.html')
-        
-        task = Task(
-            title=title,
-            description=description,
-            priority=priority,
-            due_date=due_date,
-            user_id=current_user.id
-        )
-        
-        db.session.add(task)
-        db.session.commit()
-        
-        flash('Task created successfully! ✅', 'success')
-        return redirect(url_for('tasks'))
+            
+            due_date = None
+            if due_date_str and due_date_str.strip():
+                try:
+                    due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
+                except ValueError:
+                    flash('Invalid date format!', 'error')
+                    return render_template('add_task.html')
+            
+            task = Task(
+                title=title,
+                description=description,
+                priority=priority,
+                due_date=due_date,
+                user_id=current_user.id
+            )
+            
+            db.session.add(task)
+            db.session.commit()
+            
+            flash('Task created successfully! ✅', 'success')
+            return redirect(url_for('tasks'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating task', 'error')
+            return render_template('add_task.html')
     
     return render_template('add_task.html')
 
@@ -224,28 +230,34 @@ def edit_task(task_id):
         return redirect(url_for('tasks'))
     
     if request.method == 'POST':
-        task.title = request.form.get('title')
-        task.description = request.form.get('description')
-        task.priority = request.form.get('priority')
-        task.status = request.form.get('status')
-        due_date_str = request.form.get('due_date')
-        
-        if not task.title:
-            flash('Task title is required!', 'error')
-            return render_template('edit_task.html', task=task)
-        
-        if due_date_str:
-            try:
-                task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
-            except:
-                flash('Invalid date format!', 'error')
+        try:
+            task.title = request.form.get('title')
+            task.description = request.form.get('description')
+            task.priority = request.form.get('priority')
+            task.status = request.form.get('status')
+            due_date_str = request.form.get('due_date')
+            
+            if not task.title:
+                flash('Task title is required!', 'error')
                 return render_template('edit_task.html', task=task)
-        else:
-            task.due_date = None
-        
-        db.session.commit()
-        flash('Task updated successfully! ✅', 'success')
-        return redirect(url_for('tasks'))
+            
+            if due_date_str and due_date_str.strip():
+                try:
+                    task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
+                except ValueError:
+                    flash('Invalid date format!', 'error')
+                    return render_template('edit_task.html', task=task)
+            else:
+                task.due_date = None
+            
+            db.session.commit()
+            flash('Task updated successfully! ✅', 'success')
+            return redirect(url_for('tasks'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Error updating task', 'error')
+            return render_template('edit_task.html', task=task)
     
     return render_template('edit_task.html', task=task)
 
