@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ palette.name }} - Color Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .palette-detail {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .palette-detail h1 {
+            color: white;
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .palette-id {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+
+        .large-palette {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .large-swatch {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            border: 4px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .large-swatch:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border-color: white;
+        }
+
+        .color-info {
+            color: white;
+            margin-top: 20px;
+        }
+
+        .color-info p {
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .palette-detail h1 {
+                font-size: 2rem;
+            }
+            
+            .large-swatch {
+                width: 80px;
+                height: 80px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Gallery</a>
+        
+        <div class="palette-detail">
+            <h1>🎨 {{ palette.name }}</h1>
+            <div class="palette-id">Palette ID: {{ palette_id if palette_id >= 0 else 'Random' }}</div>
+            
+            <div class="large-palette">
+                {% for color in palette.colors %}
+                <div class="large-swatch" style="background: {{ color }};" onclick="copyColor('{{ color }}')">
+                    {{ color }}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="color-info">
+                <p>✨ This palette contains {{ palette.colors|length }} beautiful colors</p>
+                <p>💡 Click any color to copy its hex code</p>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/random" class="action-btn">🎲 Random Palette</a>
+                <a href="/" class="action-btn">🏠 All Palettes</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyColor(color) {
+            navigator.clipboard.writeText(color).then(() => {
+                alert(`Color ${color} copied to clipboard! 📋`);
+            }).catch(() => {
+                alert(`Color: ${color}`);
+            });
+        }
+    </script>
+</body>
+</html>

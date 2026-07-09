@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Task Manager{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 40px auto;">
+    <div class="card">
+        <h2 style="text-align: center; margin-bottom: 30px;">
+            <i class="fas fa-user-plus"></i> Register
+        </h2>
+        <form method="POST">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Username</label>
+                <input type="text" name="username" required 
+                       style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
+                <input type="email" name="email" required 
+                       style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Password</label>
+                <input type="password" name="password" required 
+                       style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Confirm Password</label>
+                <input type="password" name="confirm_password" required 
+                       style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
+            </div>
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 14px;">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </form>
+        <p style="text-align: center; margin-top: 20px; opacity: 0.8;">
+            Already have an account? <a href="{{ url_for('login') }}" style="color: #feca57;">Login</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

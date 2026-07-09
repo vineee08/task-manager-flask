@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Task Manager{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 60px 20px;">
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <h1 style="font-size: 3rem; margin-bottom: 20px;">
+            <i class="fas fa-tasks" style="color: #feca57;"></i>
+        </h1>
+        <h1 style="font-size: 2.5rem; margin-bottom: 20px;">Task Manager</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 30px;">
+            Organize your tasks, boost your productivity,<br>
+            and achieve more every day.
+        </p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('login') }}" class="btn btn-primary" style="padding: 14px 40px; font-size: 1.1rem;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-success" style="padding: 14px 40px; font-size: 1.1rem;">
+                <i class="fas fa-user-plus"></i> Register
+            </a>
+        </div>
+        <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+            <div>
+                <i class="fas fa-check-circle" style="font-size: 2rem; color: #2ed573;"></i>
+                <p style="margin-top: 10px;">Track Tasks</p>
+            </div>
+            <div>
+                <i class="fas fa-flag" style="font-size: 2rem; color: #feca57;"></i>
+                <p style="margin-top: 10px;">Set Priorities</p>
+            </div>
+            <div>
+                <i class="fas fa-calendar-alt" style="font-size: 2rem; color: #54a0ff;"></i>
+                <p style="margin-top: 10px;">Due Dates</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

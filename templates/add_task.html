@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Add Task - Task Manager{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="card">
+        <h2 class="card-title"><i class="fas fa-plus"></i> Add New Task</h2>
+        <form method="POST">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Title *</label>
+                <input type="text" name="title" required 
+                       style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Description</label>
+                <textarea name="description" rows="4" 
+                          style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;"></textarea>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Priority</label>
+                <select name="priority" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.2);">
+                    <option value="High">🔴 High</option>
+                    <option value="Medium" selected>🟡 Medium</option>
+                    <option value="Low">🟢 Low</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">Due Date</label>
+                <input type="date" name="due_date" 
+                       style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem;">
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <button type="submit" class="btn btn-success" style="flex: 1; padding: 14px;">
+                    <i class="fas fa-save"></i> Create Task
+                </button>
+                <a href="{{ url_for('tasks') }}" class="btn" style="flex: 1; padding: 14px; text-align: center; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.2); text-decoration: none;">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
